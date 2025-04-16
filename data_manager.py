@@ -1,21 +1,28 @@
-from typing import Any, Dict, Union
+from typing import Any, Dict, Tuple, Union
+
+from dataloader import SklearnDataLoader, TorchDataLoader
+from dataset import FrameworkNativeDataset, GenericDataset, StructuredDataset
 
 
 class GenericDataManager:
     pass
 
 class SklearnDataManager(GenericDataManager):
-    def __init__(self, dataset: Any, dataloader_kwargs: Dict = None, reader_kwargs: Dict = None):
-        self._dataset = dataset
+    def __init__(self, dataset: Union[FrameworkNativeDataset, StructuredDataset], dataloader_kwargs: Dict = None, reader_kwargs: Dict = None):
+        self._dataloader = SklearnDataLoader(dataset)
+
     
-    def split(self):
+    def split(self) -> Tuple[SklearnDataLoader, SklearnDataLoader]:
         pass
 
 
 class TorchDataManager(GenericDataManager):
-    def process(self):
-        if isinstance(dataset, pandas):
-            dataset = CSVDataset(dataset)
+    def __init__(self, dataset: Union[FrameworkNativeDataset, StructuredDataset], dataloader_kwargs: Dict = None, reader_kwargs: Dict = None):
+        self._dataloader = TorchDataLoader(dataset)
+    def split(self) -> Tuple[torch.DataLoader, torch.DataLoader]:
+        ...
+
+
 
 class DataManager:
     # wrapper of SklearnDataManager / TorchDataManager
@@ -26,15 +33,25 @@ class DataManager:
         self._dataloader_kwargs = dataloader_kwargs
         self._reader_kwargs = reader_kwargs
 
+
+    def process(self):
+        if isinstance(self._dataset, GenericDataset):
+            self._dataset = StructuredDataset(self._dataset)
+        else:
+            self._dataset = FrameworkNativeDataset(self._dataset)
+
     def set_tp_type(self, tp_type):
         self._tp_type = tp_type
 
     def load(self) -> Union[TorchDataManager, SklearnDataManager]:
+        self.process()
+
         if self._tp_type is TorchTrainingPlan:
-            return TorchDataManager(self._dataset, self._dataloader_kwargs, self._reader_kwargs)
+            
+            self._dataset = TorchDataManager(self._dataset, self._dataloader_kwargs, self._reader_kwargs)
         
-        elif self._tp_type is SklearnTrainijngPlan:
-            return SklearnDataManager(self._dataset, self._dataloader_kwargs, self._reader_kwargs)
+        elif self._tp_type is SklearnTrainingPlan:
+            self._dataset = SklearnDataManager(self._dataset, self._dataloader_kwargs, self._reader_kwargs)
 
 
 
