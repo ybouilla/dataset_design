@@ -1,4 +1,4 @@
-from dataset import FrameworkNativeDataset, GenericDataset
+from dataset import FrameworkNativeDataset, GenericDataset, StructuredDataset
 
 
 import torch
@@ -7,35 +7,23 @@ import torch
 class GenericDataLoader:
     pass
 
-
+# quite useless...
 class TorchDataLoader(GenericDataLoader):
     def __init__(self, dataset: GenericDataset):
-
-        if isinstance(dataset, FrameworkNativeDataset):
-            self._dataloader = torch.DataLoader(dataset.to_pytorch())
-        else:
-
-            class TorchDataset(torch.Dataset):
-                def __init__(self, dataset: GenericDataset):
-                    self._dataset = dataset
-
-                def __len__(self):
-                    return len(self._dataset)
-                
-                def __getitem__(self, idx: int):
-                    return self._dataset[idx]
-                
-            self._dataloader = torch.DataLoader(TorchDataset(self._dataset))
-    
-
-    def save(self):
+        self._dataloader = torch.DataLoader(dataset.to_pytorch())
 
     def load(self):
-
+        return self._dataloader
 
 class SklearnDataLoader(GenericDataLoader):
+    def __init__(self, dataset: GenericDataset):
 
+        self._dataloader = NPDataLoader(dataset.to_sklearn())
 
+    def load(self):
+        return self._dataloader
+    
 
 class NPDataLoader:
+    # keep current implementation
     pass

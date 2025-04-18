@@ -13,12 +13,19 @@ one can include a `BidsDataset` for instance
 minor modifications on the FrameworkNativeDataset, DatasetManager are expected to include other machine learning frameworks such as tensorflow
 One also has to create a `TensorflowDataManager`
 
-## 3. Limit dependecies in Dataset object and sub-classes
+## 3. Limit 3rd dependecies in `Dataset` object and sub-classes
 
 
 ## 4. prepare for Federated Analytics
+
+`Dataset` can be in charge of computing simple statistcis
+we can imagine methods such as
+ - `NativeImageDataset.mean()` that returns the mean of image knowing the data are images
+we are not showing how to use FedearatedAnalytics plans
+
 ## Explaination: a big picture
 
+### A. Training Plan
 1. `DataManager` loads dataset (can be either a Fedbiomed dataset or a framework specific dataset). ( `round` calls `DataManager` in order to a) load the data and to b) split the data into a training and testing data loaders)
 
 3. depending on the type of dataset recieved, `DataManager` either convert the dataset into a) `FrameworkNativeDataset` ot b) `StructuredDataset`
@@ -27,12 +34,24 @@ One also has to create a `TensorflowDataManager`
 
 5. `DataManager` gets access in `Round` to the training plan type, and loads the `GenericDataset` into a `TorchDataManager` or `SklearnDataManager` given the type of training Plan. 
 
-6. `GenericDataManager` loads the `GenericDataset` into the franework specific `DataLoader`. Here happens the convertion from a `Generic data type` into a pytorch or sklearn object
+6. `DataManager` a) converts dataset into the appropriate framework and b) splits dataset into a training and testing data set. Splitting is only possible if dataset converted in the appropriate ml framework.
+For `FrameworkNativeDataset`, converters are included in the `Dataset`, whereas for `StructuredDataset`, it relies on a Generic converter (to seperate 3rd parties calls from `StructuredDataset`).
 
-7. `DataManager` splits dataset into a training and testing data loader
+7. for both training and testing dataset, `GenericDataManager` loads the splitted `GenericDataset` ( testing/ training splits) into the framework specific `DataLoader`, so it can directly be used by torch or sklearn models.
 
 
 
+### B. Loading Dataset into the Node
+
+To investigate
+basic idea is to call readers and controllers.
+for imagefolder, both torch and tensorflow has their own implementation. 
+...
+
+
+### C. Specificities of the `Converter`
+
+Converter convertd from one framework to another
 
 ## Uses cases
 
@@ -68,6 +87,46 @@ class TrainingPlan:
 ### 3. Loading a MedNist dataset form MONAI (`FrameworkNativeDataset`)
 
 
+### 4. Loading from a custom pytorch dataset (`FrameworkNativeDataset`)
+
+```python
+class TrainingPlan:
+    class CelebaDataset(Dataset):
+        """Custom Dataset for loading CelebA face images"""
+
+
+        def __init__(self, txt_path, img_dir, transform=None):
+
+            # Read the csv file that includes classes for each image
+            df = pd.read_csv(txt_path, sep="\t", index_col=0)
+            self.img_dir = img_dir
+            self.txt_path = txt_path
+            self.img_names = df.index.values
+            self.y = df['Smiling'].values
+            self.transform = transform
+
+        def __getitem__(self, index):
+            img = np.asarray(Image.open(os.path.join(self.img_dir, self.img_names[index])))
+            img = transforms.ToTensor()(img)
+            label = self.y[index]
+            return img, label
+
+        def __len__(self):
+            return self.y.shape[0]
+
+    def training_data(self):
+        # The training_data creates the dataset and returns DataManager to be used for training in the general class Torchnn of Fed-BioMed
+        dataset = self.CelebaDataset(
+            os.path.join(self.dataset_path, "target.csv"), os.path.join(self.dataset_path, "data")
+            )
+        loader_arguments = { 'shuffle': True}
+        return DataManager(dataset, **loader_arguments)
+
+```
+
+### 4. Loading from a medical folder dataset
+
+
 ```python
 class TrainingPlan:
     def training_data(self):
@@ -90,7 +149,5 @@ class TrainingPlan:
 
 ```
 
-
-### 4. Loading from a medical folder dataset
 
 ### 5. Loading from Flamby dataset

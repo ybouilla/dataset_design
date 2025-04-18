@@ -1,6 +1,8 @@
 
 from typing import Dict, Iterator
 
+# here we are implemented only method of the training plan that will change wrt 
+# new objects defined for the redesign
 
 class TrainingPlan:
 

@@ -9,8 +9,8 @@ class GenericDataManager:
 
 class SklearnDataManager(GenericDataManager):
     def __init__(self, dataset: Union[FrameworkNativeDataset, StructuredDataset], dataloader_kwargs: Dict = None, reader_kwargs: Dict = None):
-        self._dataloader = SklearnDataLoader(dataset)
-
+        
+        self._dataset = dataset.to_sklearn()
     
     def split(self) -> Tuple[SklearnDataLoader, SklearnDataLoader]:
         pass
@@ -18,11 +18,10 @@ class SklearnDataManager(GenericDataManager):
 
 class TorchDataManager(GenericDataManager):
     def __init__(self, dataset: Union[FrameworkNativeDataset, StructuredDataset], dataloader_kwargs: Dict = None, reader_kwargs: Dict = None):
-        self._dataloader = TorchDataLoader(dataset)
-    def split(self) -> Tuple[torch.DataLoader, torch.DataLoader]:
+        
+        self._dataset = dataset.to_pytorch()
+    def split(self) -> Tuple[TorchDataLoader, TorchDataLoader]:
         ...
-
-
 
 class DataManager:
     # wrapper of SklearnDataManager / TorchDataManager

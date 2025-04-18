@@ -83,10 +83,9 @@ class Round:
         # Get dataset property
 
         # For MedicalFolderDataset
-        if hasattr(data_manager.dataset, "set_dataset_parameters"):
-            dataset_parameters = self.dataset.get("dataset_parameters", {})
-            data_manager.dataset.set_dataset_parameters(dataset_parameters)
-
+        
+        data_manager.dataset.set_dataset_parameters(dataset_parameters)
+        # Nota Bene: `set_dataset_parameters` wont be implemented in non medical folder dataset
         if self._dlp_and_loading_block_metadata is not None:
             if hasattr(data_manager.dataset, 'set_dlp'):
                 dlp = DataLoadingPlan().deserialize(*self._dlp_and_loading_block_metadata)
