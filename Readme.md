@@ -3,7 +3,7 @@
 **disclaimer**: This repos is merly a scheme for the redesign of `Dataset` class, it cannot be used "as is", as it is lacking fedbiomed classes.
 This work is WIP
 
-## 1. Goal 1: make it extendable to other kinf of datasets
+## 1. Goal 1: make it extendable to other kind of datasets
 
 one can include a `BidsDataset` for instance
 
@@ -14,14 +14,14 @@ minor modifications on the FrameworkNativeDataset, DatasetManager are expected t
 One also has to create a `TensorflowDataManager`
 
 ## 3. Limit 3rd dependecies in `Dataset` object and sub-classes
-
+- only call third parties libraries in the `Reader` objects.
 
 ## 4. prepare for Federated Analytics
 
 `Dataset` can be in charge of computing simple statistcis
 we can imagine methods such as
  - `NativeImageDataset.mean()` that returns the mean of image knowing the data are images
-we are not showing how to use FedearatedAnalytics plans
+
 
 ## Explaination: a big picture
 
@@ -34,7 +34,7 @@ we are not showing how to use FedearatedAnalytics plans
 
 5. `DataManager` gets access in `Round` to the training plan type, and loads the `GenericDataset` into a `TorchDataManager` or `SklearnDataManager` given the type of training Plan. 
 
-6. `DataManager` a) converts dataset into the appropriate framework and b) splits dataset into a training and testing data set. Splitting is only possible if dataset converted in the appropriate ml framework.
+6. `DataManager` a) converts dataset into the appropriate framework and b) splits dataset into a training and testing data set. Splitting is only possible if dataset is converted in the appropriate ml framework.
 For `FrameworkNativeDataset`, converters are included in the `Dataset`, whereas for `StructuredDataset`, it relies on a Generic converter (to seperate 3rd parties calls from `StructuredDataset`).
 
 7. for both training and testing dataset, `GenericDataManager` loads the splitted `GenericDataset` ( testing/ training splits) into the framework specific `DataLoader`, so it can directly be used by torch or sklearn models.
@@ -48,6 +48,13 @@ basic idea is to call readers and controllers.
 for imagefolder, both torch and tensorflow has their own implementation. 
 ...
 
+
+### C. Loading Dataset through GUI
+currently, code is splitted among:
+ - middleware
+ - specific routes
+
+ such splitting looks not very clear to me
 
 ### C. Specificities of the `Converter`
 
