@@ -86,7 +86,8 @@ class GenericConverter:
         # existing method provided by library
         #return data.to_torch()
         print("used specific fct sklearn-> torch")
-        return
+
+        return torch.as_tensor(data)
     @staticmethod
     def from_torch_to_sklearn(data):
         #return from_numpy(data)
@@ -101,6 +102,17 @@ class TorchConverter:
     @staticmethod
     def from_standard(data):
         print("from standard to torch")
+        # class TorchDataset(pytorch.Dataset):
+        #     def __init__(self, data):
+        #         self._data = data
+
+        #     def __getitem__(self, idx):
+        #         return self._data[idx]
+
+        #     def __len__(self):
+        #         return len(data)
+
+        map(torch.as_tensor, data)
 
     # define here method related to pytorch
     # idea: we import here torch dependencies

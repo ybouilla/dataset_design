@@ -11,7 +11,7 @@ class GenericDataLoader:
 class TorchDataLoader(GenericDataLoader):
     def __init__(self, dataset: GenericDataset):
         self._dataloader = torch.DataLoader(dataset.to_pytorch())
-
+        
     def load(self):
         return self._dataloader
 

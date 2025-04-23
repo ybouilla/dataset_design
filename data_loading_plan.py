@@ -10,8 +10,20 @@
 # to use it in his/her model
 # 3. inhereting from `torch.Dataset`, it only implements the `__getintem__` method
 
-class DataLoadingPlan(Dict[DataLoadingPlanTypes, DataLoadingBlock]):
+from abc import abstractmethod
+from typing import Dict
 
+
+class DataLoadingPlanMixIn:
+    #  wrapper for dataloading plan tools for dataset 
+    def set_dlp(self):
+        pass
+
+    def apply_dlp(self):
+        pass
+
+class DataLoadingPlan(Dict[DataLoadingPlanTypes, MapperBlock]):
+    # NB: in the original code, it is `DataLoadingBlock` instead of `MapperBlock`
     def serialize(self):
         # convert dlp into json so it can be saved into database 
         pass
@@ -23,9 +35,26 @@ class DataLoadingPlan(Dict[DataLoadingPlanTypes, DataLoadingBlock]):
         pass
 
 
-class DataLoadingBlock(MapperBlock):
+    def _requries_dlp(self):
+        # currently belongs to Flamby Dataset: proposal, move it to DataLoadingPlan
+        pass
 
-    pass
+class DataLoadingBlock:
+    # provide logic on how to handle a specific modality in the DataLoadingPlan
+    # a DataLoadingPlanTypes is considered as a modality
+    def serialize(self):
+        pass
+    
+    def deserialize(self):
+        # load file and code
+        pass
 
-class MapperBlock:
+    @abstractmethod
+    def apply(self):
+        pass
+
+
+class MapperBlock(DataLoadingBlock):
+    # extend DataLoadingBlock with a mapping facility
+    # in the current code, used when loading a new data loading plan
     pass
