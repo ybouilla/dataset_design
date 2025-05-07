@@ -11,17 +11,20 @@ one can include a `BidsDataset` for instance
 ## 2. Goal 2: extend it to other frameworks
 
 minor modifications on the FrameworkNativeDataset, DatasetManager are expected to include other machine learning frameworks such as tensorflow
-One also has to create a `TensorflowDataManager`
+For that, One also has to create a `TensorflowDataManager`, `TensorFlowTrainingPlan`
 
 ## 3. Limit 3rd dependecies in `Dataset` object and sub-classes
-- only call third parties libraries in the `Reader` objects.
+- only call third parties libraries in the `Reader` objects, leaving `Dataset` as generic as possible.
 
 ## 4. prepare for Federated Analytics
 
 `Dataset` can be in charge of computing simple statistcis
 we can imagine methods such as
  - `NativeImageDataset.mean()` that returns the mean of image knowing the data are images
+ - converts data into a generic data type so we can easly perform statistics.
 
+## 5. Unified  Dataset API:
+    user should not modify his/her code wrt the frmework used (eg do specific things for toprch, sklearn)
 
 ## Explaination: a big picture
 
